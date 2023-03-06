@@ -2,7 +2,7 @@
     <plugin-info>
         <description>${project.description}</description>
         <version>${project.version}</version>
-        <vendor name="${project.organization.name}" url="${project.organization.url}" />
+        <vendor name="${project.organization.name}" url="${project.organization.url}"/>
         <param name="atlassian-data-center-compatible">true</param>
         <logo image="images/logo.png"/>
         <param name="vendor-icon">images/vendor_logo16.png</param>
@@ -10,7 +10,7 @@
     </plugin-info>
 
     <resource type="i18n" name="i18n" location="bitbucket-all-pull-requests"/>
-    <resource type="i18n" name="Stash Web Pull Request i18n" location="i18n.bitbucket-webapp-pullrequest" />
+    <resource type="i18n" name="Bitbucket Web Pull Request i18n" location="i18n.bitbucket-webapp-pullrequest"/>
 
     <servlet key="all-pull-requests-servlet" class="com.mendhak.bitbucket.allpullrequests.AllPullRequestsServlet">
         <url-pattern>/all-pull-requests/*</url-pattern>
@@ -31,7 +31,8 @@
     </client-resource>
 
     <web-resource key="general-pull-request-overview">
-        <resource type="download" name="bitbucket-all-pull-requests.css" location="/css/bitbucket-all-pull-requests.css"/>
+        <resource type="download" name="bitbucket-all-pull-requests.css"
+                  location="/css/bitbucket-all-pull-requests.css"/>
         <resource type="download" name="images/" location="/images"/>
         <context>atl.general</context>
     </web-resource>
@@ -68,23 +69,26 @@
         <link linkId="all-pull-requests-button">/plugins/servlet/all-pull-requests/all</link>
     </web-item>
 
-	<web-section key="mergeabilityColumnSection" name="Mergeability Column" location="bitbucket.pull-request.table-column" weight="110">
+    <web-section key="mergeabilityColumnSection" name="Mergeability Column"
+                 location="bitbucket.pull-request.table-column" weight="110">
         <label key="mergeabilityColumnHeader">Mergeability</label>
     </web-section>
 
-	<web-panel key="mergeabilityColumnPanel" location="bitbucket.pull-request.table-column/mergeabilityColumnSection">
-    	<resource name="view" type="soy" location="${project.groupId}.${project.artifactId}:mergeability-column-template/plugin.pullRequest.tableExtraData.mergeabilityColumn"/>
+    <web-panel key="mergeabilityColumnPanel" location="bitbucket.pull-request.table-column/mergeabilityColumnSection">
+        <resource name="view" type="soy"
+                  location="${project.groupId}.${project.artifactId}:mergeability-column-template/plugin.pullRequest.tableExtraData.mergeabilityColumn"/>
         <dependency>plugin.pullRequest.tableExtraData:mergeability-column-template</dependency>
     </web-panel>
-    
+
     <web-resource key="mergeability-column-template" name="Mergeability template">
-        <resource type="download" name="mergeability-column.soy" location="/soy/mergeability-column.soy" />
+        <resource type="download" name="mergeability-column.soy" location="/soy/mergeability-column.soy"/>
         <dependency>com.atlassian.bitbucket.server.bitbucket-web:global</dependency>
     </web-resource>
 
-	<component key="pullRequestLoggerFactory" class="com.mendhak.bitbucket.allpullrequests.utils.PluginLoggerFactory"/>
+    <component key="pullRequestLoggerFactory" class="com.mendhak.bitbucket.allpullrequests.utils.PluginLoggerFactory"/>
 
-    <component key="defaultPullRequestExtendedFactory" class="com.mendhak.bitbucket.allpullrequests.DefaultPullRequestExtendedFactory">
+    <component key="defaultPullRequestExtendedFactory"
+               class="com.mendhak.bitbucket.allpullrequests.DefaultPullRequestExtendedFactory">
         <description>Factory for PullRequestExtended</description>
         <interface>com.mendhak.bitbucket.allpullrequests.PullRequestExtendedFactory</interface>
     </component>
@@ -94,7 +98,8 @@
     <component-import key="projectService" interface="com.atlassian.bitbucket.project.ProjectService"/>
     <component-import key="pullRequestService" interface="com.atlassian.bitbucket.pull.PullRequestService"/>
     <component-import key="repositoryService" interface="com.atlassian.bitbucket.repository.RepositoryService"/>
-    <component-import key="permissionValidationService" interface="com.atlassian.bitbucket.permission.PermissionValidationService"/>
+    <component-import key="permissionValidationService"
+                      interface="com.atlassian.bitbucket.permission.PermissionValidationService"/>
     <component-import key="soyTemplateRenderer" interface="com.atlassian.soy.renderer.SoyTemplateRenderer"/>
     <component-import key="pageBuilderService" interface="com.atlassian.webresource.api.assembler.PageBuilderService"/>
 

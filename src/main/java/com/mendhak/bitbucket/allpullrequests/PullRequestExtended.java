@@ -1,12 +1,12 @@
 /**
- * 
+ *
  */
 package com.mendhak.bitbucket.allpullrequests;
 
+import com.atlassian.bitbucket.comment.Comment;
 import com.atlassian.bitbucket.property.PropertyMap;
 import com.atlassian.bitbucket.pull.*;
-import com.atlassian.bitbucket.task.TaskCount;
-import com.atlassian.bitbucket.task.TaskState;
+import com.atlassian.bitbucket.util.Page;
 import com.atlassian.bitbucket.validation.annotation.OptionalString;
 
 import javax.annotation.Nonnull;
@@ -22,19 +22,20 @@ import java.util.Set;
  *
  */
 public class PullRequestExtended {
-    
+
     private final PullRequest pullRequest;
-    
+
     private final PullRequestMergeability mergeability;
-    
-    private final TaskCount taskCount;
-    
+
+    private final Page<Comment> taskComments;
+
     private final List<PullRequestMergeVeto> customVetoes;
-    
-    public PullRequestExtended(final PullRequest pullRequest, final PullRequestMergeability mergeability, TaskCount taskCount) {
+
+    public PullRequestExtended(final PullRequest pullRequest, final PullRequestMergeability mergeability,
+                               Page<Comment> taskComments) {
         this.pullRequest = pullRequest;
         this.mergeability = mergeability;
-        this.taskCount = taskCount;
+        this.taskComments = taskComments;
         this.customVetoes = new ArrayList<PullRequestMergeVeto>();
     }
 
@@ -66,119 +67,119 @@ public class PullRequestExtended {
     }
 
     /* (non-Javadoc)
-         * @see com.atlassian.stash.pull.PullRequest#getAuthor()
+         * @see com.atlassian.bitbucket.pull.PullRequest#getAuthor()
          */
     public PullRequestParticipant getAuthor() {
         return pullRequest.getAuthor();
     }
 
     /* (non-Javadoc)
-     * @see com.atlassian.stash.pull.PullRequest#getCreatedDate()
+     * @see com.atlassian.bitbucket.pull.PullRequest#getCreatedDate()
      */
     public Date getCreatedDate() {
         return pullRequest.getCreatedDate();
     }
-    
+
     /* (non-Javadoc)
-     * @see com.atlassian.stash.pull.PullRequest#getFromRef()
+     * @see com.atlassian.bitbucket.pull.PullRequest#getFromRef()
      */
     public PullRequestRef getFromRef() {
         return pullRequest.getFromRef();
     }
 
     /* (non-Javadoc)
-     * @see com.atlassian.stash.pull.PullRequest#getId()
+     * @see com.atlassian.bitbucket.pull.PullRequest#getId()
      */
     public Long getId() {
         return pullRequest.getId();
     }
 
     /* (non-Javadoc)
-     * @see com.atlassian.stash.pull.PullRequest#getParticipants()
+     * @see com.atlassian.bitbucket.pull.PullRequest#getParticipants()
      */
     public Set<PullRequestParticipant> getParticipants() {
         return pullRequest.getParticipants();
     }
 
     /* (non-Javadoc)
-     * @see com.atlassian.stash.pull.PullRequest#getReviewers()
+     * @see com.atlassian.bitbucket.pull.PullRequest#getReviewers()
      */
     public Set<PullRequestParticipant> getReviewers() {
         return pullRequest.getReviewers();
     }
 
     /* (non-Javadoc)
-     * @see com.atlassian.stash.pull.PullRequest#getState()
+     * @see com.atlassian.bitbucket.pull.PullRequest#getState()
      */
     public PullRequestState getState() {
         return pullRequest.getState();
     }
 
     /* (non-Javadoc)
-     * @see com.atlassian.stash.pull.PullRequest#getTitle()
+     * @see com.atlassian.bitbucket.pull.PullRequest#getTitle()
      */
     public String getTitle() {
         return pullRequest.getTitle();
     }
 
     /* (non-Javadoc)
-     * @see com.atlassian.stash.pull.PullRequest#getToRef()
+     * @see com.atlassian.bitbucket.pull.PullRequest#getToRef()
      */
     public PullRequestRef getToRef() {
         return pullRequest.getToRef();
     }
-    
+
     public Date getUpdatedDate() {
         return pullRequest.getUpdatedDate();
     }
 
     /* (non-Javadoc)
-     * @see com.atlassian.stash.pull.PullRequest#isOpen()
+     * @see com.atlassian.bitbucket.pull.PullRequest#isOpen()
      */
     public boolean isOpen() {
         return pullRequest.isOpen();
     }
-    
+
     public PullRequest getPullRequest() {
         return pullRequest;
     }
-    
+
     public boolean isMergeable() {
         return mergeability.canMerge();
     }
-    
+
     public List<String> getVetos() {
         List<String> allVetoes = new ArrayList<String>();
         for(PullRequestMergeVeto veto: mergeability.getVetoes()) {
             allVetoes.add(veto.getSummaryMessage());
         }
-        
+
         for(PullRequestMergeVeto veto: customVetoes) {
             allVetoes.add(veto.getSummaryMessage());
         }
-        
+
         return allVetoes;
     }
-    
+
     public List<MergeBlockerIconKeeper> getVetoIcons() {
         List<MergeBlockerIconKeeper> allVetoes = new ArrayList<MergeBlockerIconKeeper>();
         for(PullRequestMergeVeto veto: mergeability.getVetoes()) {
             allVetoes.add(MergeBlockerIconKeeper.getMergeBlockerIconByMessage(veto.getSummaryMessage()));
         }
-        
+
         for(PullRequestMergeVeto veto: customVetoes) {
             allVetoes.add(MergeBlockerIconKeeper.getMergeBlockerIconByMessage(veto.getSummaryMessage()));
         }
-        
+
         return allVetoes;
     }
-    
+
     public long getOpenedTasksCount() {
-        return taskCount.getCount(TaskState.OPEN);
+        return taskComments.getSize();
     }
 
     public long getClosedTasksCount() {
-        return taskCount.getCount(TaskState.RESOLVED);
+        return taskComments.getSize();
     }
 
     public void addCustomMergeVeto(PullRequestMergeVeto pullRequestMergeVeto) {

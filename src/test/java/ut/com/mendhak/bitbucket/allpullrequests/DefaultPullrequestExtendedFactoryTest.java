@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
+import com.atlassian.bitbucket.comment.CommentService;
 import com.atlassian.bitbucket.pull.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -42,18 +43,21 @@ import com.mendhak.bitbucket.allpullrequests.utils.PluginLoggerFactory;
 public class DefaultPullrequestExtendedFactoryTest {
 
     private static Properties properties;
-    
+
     @Mock
     private PullRequestService pullRequestService;
-    
+
+    @Mock
+    private CommentService commentService;
+
     @Mock
     private ScmService scmService;
-    
+
     @Mock
     private PluginLoggerFactory pluginLoggerFactory;
-    
+
     private DefaultPullRequestExtendedFactory factory;
-    
+
     @BeforeClass
     public static void initializeProperties() {
         final InputStream inputStream = DefaultPullrequestExtendedFactoryTest.class.getClassLoader().getResourceAsStream("bitbucket-all-pull-requests.properties");
@@ -64,102 +68,102 @@ public class DefaultPullrequestExtendedFactoryTest {
             e.printStackTrace();
         }
     }
-    
+
     @Before
     public void setUp() throws IOException {
         when(pluginLoggerFactory.getLoggerForThis(any())).thenReturn(mock(Logger.class));
-        factory = new DefaultPullRequestExtendedFactory(pullRequestService, scmService);
+        factory = new DefaultPullRequestExtendedFactory(pullRequestService, scmService, commentService);
     }
-    
+
     @Test
     public void shouldMerge() {
         //given
         PullRequest pullRequest = getPullRequestMock();
         when(pullRequest.getState()).thenReturn(PullRequestState.OPEN);
-        
+
         PullRequestMergeability pullRequestMergeability = getPullRequestMergeability(true, new PullRequestMergeVeto[0]);
-        when(pullRequestService.canMerge(anyInt(), anyLong())).thenReturn(pullRequestMergeability); 
-        
+        when(pullRequestService.canMerge(anyInt(), anyLong())).thenReturn(pullRequestMergeability);
+
         ScmPullRequestCommandFactory commandFactory = getScmPullRequestCommandFactory(true, pullRequest);
         when(scmService.getPullRequestCommandFactory(eq(pullRequest))).thenReturn(commandFactory);
-        
+
         //when
         PullRequestExtended pullRequestExtended = factory.getPullRequestExtended(pullRequest);
         List<String> vetos = pullRequestExtended.getVetos();
-        
+
         //then
         assertThat(vetos.size(), equalTo(0));
     }
-    
+
     @Test
     public void shouldNotMergeDueToMergeConfilct() {
         //given
         PullRequest pullRequest = getPullRequestMock();
         when(pullRequest.getState()).thenReturn(PullRequestState.OPEN);
-        
+
         PullRequestMergeability pullRequestMergeability = getPullRequestMergeability(true, new PullRequestMergeVeto[0]);
-        when(pullRequestService.canMerge(anyInt(), anyLong())).thenReturn(pullRequestMergeability); 
-        
+        when(pullRequestService.canMerge(anyInt(), anyLong())).thenReturn(pullRequestMergeability);
+
         ScmPullRequestCommandFactory commandFactory = getScmPullRequestCommandFactory(false, pullRequest);
         when(scmService.getPullRequestCommandFactory(eq(pullRequest))).thenReturn(commandFactory);
-        
+
         //when
         PullRequestExtended pullRequestExtended = factory.getPullRequestExtended(pullRequest);
         List<String> vetos = pullRequestExtended.getVetos();
-        
+
         //then
         assertThat(vetos.size(), equalTo(1));
         assertThat(vetos.get(0), equalTo(properties.getProperty("pullRequest.mergeConflict.summaryMessage")));
     }
-    
+
     @Test
     public void shouldReturnMergedPullRequest() {
         //given
         PullRequest pullRequest = getPullRequestMock();
         when(pullRequest.getState()).thenReturn(PullRequestState.MERGED);
-        
+
         //when
         PullRequestExtended pullRequestExtended = factory.getPullRequestExtended(pullRequest);
-        
+
         //then
         List<MergeBlockerIconKeeper> vetoes = pullRequestExtended.getVetoIcons();
-        assertThat(MergeBlockerIconKeeper.CROSS.getIconFileName(), is(vetoes.get(0).getIconFileName()));      
+        assertThat(MergeBlockerIconKeeper.CROSS.getIconFileName(), is(vetoes.get(0).getIconFileName()));
     }
-    
+
     @Test
     public void shouldReturnDeclinedPullRequest() {
         //given
         PullRequest pullRequest = getPullRequestMock();
         when(pullRequest.getState()).thenReturn(PullRequestState.DECLINED);
-        
+
         //when
         PullRequestExtended pullRequestExtended = factory.getPullRequestExtended(pullRequest);
-        
+
         //then
         List<MergeBlockerIconKeeper> vetoes = pullRequestExtended.getVetoIcons();
-        assertThat(MergeBlockerIconKeeper.CROSS.getIconFileName(), is(vetoes.get(0).getIconFileName())); 
+        assertThat(MergeBlockerIconKeeper.CROSS.getIconFileName(), is(vetoes.get(0).getIconFileName()));
     }
-    
+
     private PullRequest getPullRequestMock() {
         PullRequest pullRequest = mock(PullRequest.class);
         PullRequestRef pullRequestRef = mock (PullRequestRef.class);
         Repository repository = mock(Repository.class);
-        
+
         when(pullRequestRef.getRepository()).thenReturn(repository);
-        when(pullRequest.getToRef()).thenReturn(pullRequestRef);    
+        when(pullRequest.getToRef()).thenReturn(pullRequestRef);
         when(pullRequest.getId()).thenReturn(11223344L);
-        
+
         return pullRequest;
     }
-    
+
     private PullRequestMergeability getPullRequestMergeability(final Boolean caMarge, final PullRequestMergeVeto ... pullRequestMergeVetos) {
         PullRequestMergeability pullRequestMergeability = mock(PullRequestMergeability.class);
         when(pullRequestMergeability.canMerge()).thenReturn(caMarge);
         when(pullRequestMergeability.getVetoes()).thenReturn(Arrays.asList(pullRequestMergeVetos));
-        
+
         return pullRequestMergeability;
     }
-    
+
     private ScmPullRequestCommandFactory getScmPullRequestCommandFactory(final Boolean canMerge, final PullRequest pullRequest) {
         ScmPullRequestCommandFactory commandFactory = mock (ScmPullRequestCommandFactory.class);
         //Command<Boolean> command = mock(Command.class);
@@ -172,5 +176,5 @@ public class DefaultPullrequestExtendedFactoryTest {
 
         return commandFactory;
     }
-    
+
 }

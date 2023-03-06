@@ -24,7 +24,7 @@ import com.atlassian.sal.api.ApplicationProperties;
 public class PluginLoggerFactory {
 
     private static final String ROOT = "com.mendhak.bitbucket.allpullrequests";
-    private static final Logger STASH_ROOT_LOGGER = LoggerFactory.getLogger("ROOT");
+    private static final Logger Bitbucket_ROOT_LOGGER = LoggerFactory.getLogger("ROOT");
 
     private LoggerContext context;
 
@@ -45,7 +45,7 @@ public class PluginLoggerFactory {
         context = (LoggerContext) LoggerFactory.getILoggerFactory();
 
         // store the home dir to use for relative paths
-        context.putProperty("stash.home", homeDir);
+        context.putProperty("Bitbucket.home", homeDir);
 
         JoranConfigurator configurator = new JoranConfigurator();
         configurator.setContext(context);
@@ -53,9 +53,9 @@ public class PluginLoggerFactory {
         InputStream is;
         is = this.getClass().getClassLoader().getResourceAsStream("logback-test.xml");
         if (is != null) {
-            STASH_ROOT_LOGGER.info("Using logback-test.xml for logger settings");
+            Bitbucket_ROOT_LOGGER.info("Using logback-test.xml for logger settings");
         } else {
-            STASH_ROOT_LOGGER.info("Using logback.xml for logger settings");
+            Bitbucket_ROOT_LOGGER.info("Using logback.xml for logger settings");
             is = this.getClass().getClassLoader().getResourceAsStream("logback.xml");
         }
 
